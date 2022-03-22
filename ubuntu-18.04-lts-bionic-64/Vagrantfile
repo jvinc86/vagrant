@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
   # ---- Configurar la VM ---- 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 2048
-    vb.name = "ubuntu_14_04"
+    vb.name = "ubuntu_18_04"
     vb.check_guest_additions = false
     vb.cpus = 2
   end
