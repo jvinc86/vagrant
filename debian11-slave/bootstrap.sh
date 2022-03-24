@@ -7,6 +7,10 @@ useradd -U $usuario -m -s /bin/bash -G sudo
 echo "$usuario:123" | chpasswd
 echo "$usuario ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
 
+echo "vagrant ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
+echo "vagrant:123" | chpasswd
+echo "root:123" | chpasswd
+
 wget -P /tmp https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz
 tar -xf /tmp/apache-maven-3.8.5-bin.tar.gz -C /opt
 ln -s /opt/apache-maven-3.8.5 /opt/maven
