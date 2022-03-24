@@ -31,6 +31,7 @@ wget -P /tmp https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-
 tar -xf /tmp/apache-maven-3.8.5-bin.tar.gz -C /opt
 ln -s /opt/apache-maven-3.8.5 /opt/maven
 
+# Jenkins Installation
 curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io.key | tee /usr/share/keyrings/jenkins-keyring.asc > /dev/null
 echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ | tee /etc/apt/sources.list.d/jenkins.list > /dev/null
 apt-get update -y
