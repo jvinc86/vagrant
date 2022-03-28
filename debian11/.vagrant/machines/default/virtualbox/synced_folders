@@ -1,1 +1,0 @@
-{"virtualbox":{"/var/www/html/":{"guestpath":"/var/www/html","hostpath":"C:/vagrant/debian11/html","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"C:/vagrant/debian11","disabled":false,"__vagrantfile":true}}}
