@@ -3,11 +3,19 @@ timedatectl set-timezone Europe/Paris
 
 apt install -y git vim curl wget tree gnupg2
 
+#Instalar Ansible
+apt update -y  
+apt install software-properties-common
+add-apt-repository --yes --update ppa:ansible/ansible
+apt install ansible
+
+#Crear usuario Ansible
 usuario=ansibleadmin
 useradd -U $usuario -m -s /bin/bash -G sudo
 echo "$usuario:123" | chpasswd
 echo "$usuario ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
 
+#Modificar password de usuarios root y vagrant
 echo "vagrant ALL=(ALL) NOPASSWD: ALL" | tee -a /etc/sudoers
 echo "vagrant:123" | chpasswd
 echo "root:123" | chpasswd
