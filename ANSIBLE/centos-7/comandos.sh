@@ -14,6 +14,9 @@ echo "$contrasena" | passwd --stdin vagrant
 echo "vagrant        ALL=(ALL)       NOPASSWD: ALL" | tee -a /etc/sudoers
 
 sed -i 's/^%wheel.*/%wheel        ALL=(ALL)       NOPASSWD: ALL/g' /etc/sudoers
+
 sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 sed -i 's/^#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
 systemctl restart sshd
+
+echo "BRUTAL! Instalacion terminada con exito. Sigue asi!"

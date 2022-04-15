@@ -4,10 +4,10 @@ timedatectl set-timezone Europe/Paris
 apt install -y git vim curl wget tree gnupg2
 
 #Instalar Ansible
-apt update -y  
-apt install software-properties-common
+apt update -y
+apt install software-properties-common -y
 add-apt-repository --yes --update ppa:ansible/ansible
-apt install ansible
+apt install ansible -y
 
 #Crear usuario Ansible
 usuario=ansibleadmin
@@ -24,3 +24,5 @@ sed -i -re 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers
 sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 sed -i 's/^#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
 systemctl restart sshd
+
+echo "BRUTAL! Instalacion terminada con exito. Sigue asi!"
