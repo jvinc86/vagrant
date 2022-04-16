@@ -4,10 +4,10 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
 
   # Llave privada: Configuramso 2 llaves posibles para usar como conexion, la de vcamacho y la de vagrant 
-  config.ssh.private_key_path = ["/mnt/c/Users/jvinc/.ssh/id_rsa", "/mnt/c/Users/jvinc/.vagrant.d/insecure_private_key"]
+  config.ssh.private_key_path = ["~/.ssh/id_rsa"]
 
   # Llave publica - La guardamos en el authorized_keys del servidor para poder acceder por ssh con PubKeyAuthentication
-  config.vm.provision "file", source: "/mnt/c/Users/jvinc/.ssh/id_rsa.pub", destination: "/home/vagrant/.ssh/authorized_keys"
+  config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "/home/vagrant/.ssh/authorized_keys"
 
   # La IP. OJO cuando se usa Host-Only Networking en VirtualBox, el rango permitido es unicamente 192.168.56.0/21 
   config.vm.network "private_network", ip: "192.168.56.40"
@@ -15,7 +15,6 @@ Vagrant.configure("2") do |config|
   # El sistema operativo, CPU y RAM
   config.vm.box = "ubuntu/focal64"
   config.vm.hostname = "ubuntu"
-  config.vm.guest = "linux"
   config.vm.box_check_update = true
   config.vm.boot_timeout = 600
   config.vm.provider "virtualbox" do |servidor|
