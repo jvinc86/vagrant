@@ -1,9 +1,9 @@
 Vagrant.configure("2") do |config|
 
-  # #Deshabilita la insercion automatica de una key por parte de Vagrant
+  # Deshabilita la insercion automatica de una key por parte de Vagrant
   config.ssh.insert_key = false
 
-  # # Llave privada: Configuramos 2 llaves posibles para usar como conexion, la de vcamacho y la de vagrant 
+  # Llave privada: Configuramos 2 llaves posibles para usar como conexion, la de vcamacho y la de vagrant 
   config.ssh.private_key_path = ["~/.ssh/id_rsa", "~/.vagrant.d/insecure_private_key"]
 
   # Llave publica - La guardamos en el authorized_keys del servidor para poder acceder por ssh con PubKeyAuthentication
