@@ -1,23 +1,31 @@
 Vagrant.configure("2") do |config|
 
+  #Deshabilita la insercion automatica de una key por parte de Vagrant
   config.ssh.insert_key = false
+
+  #Le decimos que NO use nuestra llave privada Windows como llave de la maquina, por eso la agrega como insegura 
   config.ssh.private_key_path = ["C:/Users/jvinc/.ssh/id_rsa", "C:/Users/jvinc/.vagrant.d/insecure_private_key"]
+
+  # Pasamos nuestra llave publica al servidor para poder acceder por ssh con PubKeyAuthentication
   config.vm.provision "file", source: "C:/Users/jvinc/.ssh/id_rsa.pub", destination: "/home/vagrant/.ssh/authorized_keys"
 
+  # La IP
   config.vm.network "private_network", ip: "192.168.33.40"
 
   config.vm.box = "rockylinux/8"
   config.vm.hostname = "rocky"
+  config.vm.guest = linux
   config.vm.box_check_update = true
-
-  config.vm.provider "virtualbox" do |vb|
-    vb.name = "rocky-8"
-    vb.memory = 2048
-    vb.cpus = 1
-    vb.gui = true
-    vb.check_guest_additions = false
+  config.vm.boot_timeout = 600
+  config.vm.provider "virtualbox" do |servidor|
+    servidor.name = "rocky-8"
+    servidor.memory = 1024
+    servidor.cpus = 1    
+    servidor.gui = false
+    servidor.check_guest_additions = true
   end
 
   config.vm.provision "shell", path: "comandos.sh"
+  config.vm.post_up_message = "VAGRANT HA FINALIZADO CORRECTAMENTE! La VM esta lista y ahora puedes ingresar con usuario=vagrant y password=vagrant"
 
 end
