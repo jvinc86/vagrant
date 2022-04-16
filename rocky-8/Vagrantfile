@@ -3,29 +3,33 @@ Vagrant.configure("2") do |config|
   #Deshabilita la insercion automatica de una key por parte de Vagrant
   config.ssh.insert_key = false
 
-  #Le decimos que NO use nuestra llave privada Windows como llave de la maquina, por eso la agrega como insegura 
-  config.ssh.private_key_path = ["C:/Users/jvinc/.ssh/id_rsa", "C:/Users/jvinc/.vagrant.d/insecure_private_key"]
+  #Le decimos que NO use nuestra llave privada de WSL como llave de la maquina que va a crear, por eso la agrega como insegura 
+  config.ssh.private_key_path = ["~/.ssh/id_ed25519", "~/.vagrant.d/insecure_private_key"]
 
   # Pasamos nuestra llave publica al servidor para poder acceder por ssh con PubKeyAuthentication
-  config.vm.provision "file", source: "C:/Users/jvinc/.ssh/id_rsa.pub", destination: "/home/vagrant/.ssh/authorized_keys"
+  config.vm.provision "file", source: "~/.ssh/id_ed25519.pub", destination: "~/.ssh/authorized_keys"
 
-  # La IP
-  config.vm.network "private_network", ip: "192.168.33.40"
+  # La IP. OJO cuando se usa Host-Only Networking en VirtualBox, el rango permitido es unicamente 192.168.56.0/21 
+  config.vm.network "private_network", ip: "192.168.56.40"
 
-  config.vm.box = "rockylinux/8"
+  # El sistema operativo, CPU y RAM
+  config.vm.box = "generic/rocky8"
   config.vm.hostname = "rocky"
-  config.vm.guest = linux
+  config.vm.guest = "linux"
   config.vm.box_check_update = true
   config.vm.boot_timeout = 600
   config.vm.provider "virtualbox" do |servidor|
     servidor.name = "rocky-8"
     servidor.memory = 1024
-    servidor.cpus = 1    
+    servidor.cpus = 1
     servidor.gui = false
     servidor.check_guest_additions = true
   end
 
+  # El bootstrap si queremos ejecutar una especie de script inicial, ej: como el userdata de EC2
   config.vm.provision "shell", path: "comandos.sh"
+
+  # Mensaje para el usuario para cuando acabe el vagrant up, le diga que debe hacer despues para conectarse
   config.vm.post_up_message = "VAGRANT HA FINALIZADO CORRECTAMENTE! La VM esta lista y ahora puedes ingresar con usuario=vagrant y password=vagrant"
 
 end
