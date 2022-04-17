@@ -1,0 +1,37 @@
+Vagrant.configure("2") do |config|
+
+  # Deshabilita la insercion automatica de una key por parte de Vagrant
+  config.ssh.insert_key = false
+
+  # Llave privada: Configuramos 2 llaves posibles para usar como conexion, la de vcamacho y la de vagrant 
+  config.ssh.private_key_path = ["~/.ssh/id_rsa", "~/.vagrant.d/insecure_private_key"]
+
+  # Llave publica - La guardamos en el authorized_keys del servidor para poder acceder por ssh con PubKeyAuthentication
+  config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "/home/vagrant/.ssh/authorized_keys"
+
+  # La IP. OJO cuando se usa Host-Only Networking en VirtualBox, el rango permitido es unicamente 192.168.56.0/21 
+  config.vm.network "private_network", ip: "192.168.56.40"
+
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  # El sistema operativo, CPU y RAM
+  config.vm.box = "generic/rocky8"
+  config.vm.hostname = "rockylinux"
+  config.vm.box_check_update = true
+  config.vm.boot_timeout = 600
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "rocky-8"
+    vb.memory = 1024
+    vb.cpus = 1
+    vb.gui = true
+    vb.check_guest_additions = false
+    # vb.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
+  end
+
+  # El bootstrap si queremos ejecutar una especie de script inicial, ej: como el userdata de EC2
+  # config.vm.provision "shell", path: "comandos.sh"
+
+  # Mensaje para el usuario para cuando acabe el vagrant up, le diga que debe hacer despues para conectarse
+  config.vm.post_up_message = "VAGRANT HA FINALIZADO CORRECTAMENTE! La VM esta lista y ahora puedes ingresar con usuario=vagrant y password=vagrant"
+
+end
