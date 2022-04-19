@@ -1,9 +1,9 @@
 Vagrant.configure("2") do |config|
 
-servidor_ip = "192.168.56.10"
-box_os = "generic/ubuntu2004"
-servidor_nombre_os =  "ubuntu"
-vm_nombre_virtual_box = "ubuntu-20-04"
+servidor_ip = "192.168.56.41"
+box_os = "generic/centos7"
+servidor_nombre_os = "centos"
+vm_nombre_virtual_box = "centos"
 mi_llave_privada = "~/.ssh/id_ed25519"
 mi_llave_publica = "~/.ssh/id_ed25519.pub"
 llave_de_vagrant = "~/.vagrant.d/insecure_private_key"
