@@ -1,6 +1,6 @@
 Vagrant.configure("2") do |config|
 
-servidor_ip = "192.168.56.40"
+servidor_ip = "192.168.56.80"
 box_os = "generic/rocky8"
 servidor_nombre_os =  "rocky"
 vm_nombre_virtual_box = "rocky"
