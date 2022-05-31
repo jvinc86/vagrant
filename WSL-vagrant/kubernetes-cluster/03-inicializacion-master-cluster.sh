@@ -19,8 +19,3 @@ echo "[PASO 6] Configurar permisos a usuario ROOT para poder ejecutar comandos k
 export KUBECONFIG=/etc/kubernetes/admin.conf
 echo "export KUBECONFIG=/etc/kubernetes/admin.conf" | tee -a ~/.bashrc
 source ~/.bashrc
-
-echo "[PASO 7] Configurar permisos a usuario ANSIBLE para poder ejecutar comandos kubectl"
-mkdir -p /home/ansible/.kube
-cp -i /etc/kubernetes/admin.conf /home/ansible/.kube/config
-chown ansible:ansible /home/ansible/.kube/config

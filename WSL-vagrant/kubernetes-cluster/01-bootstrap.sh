@@ -22,6 +22,6 @@ echo "$usuario ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 sudo ufw disable
 
 # Permitir accesos por SSH con UserPassword y con Llave
-sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-sed -i 's/^#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config
+sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+sed -i 's/^#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
 sudo service sshd restart
