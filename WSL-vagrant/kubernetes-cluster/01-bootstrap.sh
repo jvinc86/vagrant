@@ -1,6 +1,7 @@
 #!/bin/bash
+# BOOTSTRAP para dejar configurado y preparado el sistema operativo
 
-# Actualizas repositorios APT y hacer upgrade de paquetes
+# Actualizar repositorios APT y hacer upgrade de paquetes
 sudo apt update && sudo apt upgrade -y
 
 # Configurar timezone

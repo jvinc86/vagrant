@@ -1,24 +1,25 @@
 #!/bin/bash
+# 01/06/2022
+# Bash script para instalar tanto en el Master como en los Worker: 
+#  - Docker
+#  - Kubernetes (kubeadm, kubelet, kubectl)
+#  - Container Runtime Interface (CRI) llamado: cri-dockerd (de la marca Mirantis)
 
 echo "[PASO 1 - BOOTSTRAP]: Actualizar paquetes Rocky"
 dnf update -y
+
 
 echo "[PASO 2 - BOOTSTRAP]: Permitir accesos por SSH con UserPassword y con Llave"
 sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 sed -i 's/^#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
 service sshd restart
 
+
 echo "[PASO 3 - BOOTSTRAP]: No pedir password a usuarios sudo"
 sed -i 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers
 
-echo "[PASO 4]: Instalar Docker"
-dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
-dnf install -y docker-ce
-systemctl start docker
-systemctl enable docker
-usermod -aG docker $USER
 
-echo "[PASO 5]: Configurar registros DNS locales"
+echo "[PASO 4 - BOOTSTRAP]: Configurar registros DNS locales"
 cat << EOF >> /etc/hosts
 # Kubernetes Servidores
 192.168.56.10 kmaster kmaster.vincenup.com
@@ -28,9 +29,17 @@ cat << EOF >> /etc/hosts
 EOF
 
 
-echo "[PASO 6]: Deshabilitar Firewall"
+echo "[PASO 5 - BOOTSTRAP]: Deshabilitar Firewall"
 systemctl stop firewalld
 systemctl disable firewalld
+
+
+echo "[PASO 6]: Instalar Docker"
+dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+dnf install -y docker-ce
+systemctl start docker
+systemctl enable docker
+usermod -aG docker $USER
 
 
 echo "[PASO 7]: Deshabilitar la swap (memoria en disco)"

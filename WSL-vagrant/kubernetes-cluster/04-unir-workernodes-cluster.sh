@@ -1,4 +1,5 @@
 #!/bin/bash
+# Bash script para unir los worker nodes al Cluster Kubernetes
 
 echo "[PASO 1]: Instalar paquete SSHPass"
 

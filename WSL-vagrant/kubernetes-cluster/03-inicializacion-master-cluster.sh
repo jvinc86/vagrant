@@ -1,4 +1,5 @@
 #!/bin/bash
+# Bash script para inicializar el Master Node, creando oficialmente el Cluster Kubernetes
 
 echo "[PASO 1] Pullar los contenedores requeridos (scheduler, etcd, controller manager, etc.)"
 kubeadm config images pull --cri-socket unix:///var/run/cri-dockerd.sock
