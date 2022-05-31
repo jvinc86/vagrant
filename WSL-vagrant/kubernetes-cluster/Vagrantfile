@@ -1,10 +1,9 @@
-# --------------------------------------------------------------------
-# INSTALACION DE CLUSTER KUBERNETES  -  MASTER Y WORKER NODES
-# --------------------------------------------------------------------
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
 
 ENV['VAGRANT_NO_PARALLEL'] = 'yes'
 
-Vagrant.configure("2") do |config|
+Vagrant.configure(2) do |config|
 
 # --------------- Configuraciones de llaves SSH ---------------------- 
   mi_llave_privada = "~/.ssh/id_ed25519"
@@ -48,9 +47,9 @@ Vagrant.configure("2") do |config|
       end
 
       kmaster.vm.provider :libvirt do |v|
-          v.memory  = 1024
+          v.memory  = 2048
           v.nested  = true
-          v.cpus    = 1
+          v.cpus    = 2
       end
 
       # kmaster.vm.provision "shell", path: "comandos-master.sh"
@@ -69,18 +68,18 @@ Vagrant.configure("2") do |config|
         node.vm.hostname = servidor_nombre_os
         node.vm.network "private_network", ip: servidor_ip
 
-        node.vm.provider "virtualbox" do |v|
-          v.name = vm_nombre_virtual_box
-          v.memory = 1024
-          v.cpus = 1
-          v.gui = true
-          # v.check_guest_additions = false
+        node.vm.provider :virtualbox do |v|
+            v.name    = vm_nombre_virtual_box
+            v.memory  = 1024
+            v.cpus    = 1
+            # v.gui = true
+            # v.check_guest_additions = false
         end
 
         node.vm.provider :libvirt do |v|
-              v.memory  = 1024
-              v.nested  = true
-              v.cpus    = 1
+            v.memory  = 1024
+            v.nested  = true
+            v.cpus    = 1
         end
       
         # node.vm.provision "shell", path: "comandos-master.sh"
