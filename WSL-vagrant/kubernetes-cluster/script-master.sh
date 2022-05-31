@@ -1,13 +1,18 @@
 #!/bin/bash
 
 echo "[PASO 1] Pullar los contenedores requeridos (scheduler, etcd, controller manager, etc.)"
-kubeadm config images pull >/dev/null 2>&1
+kubeadm config images pull --cri-socket unix:///var/run/cri-dockerd.sock >/dev/null 2>&1
 
 echo "[PASO 2] Inicializar el Cluster Kubernetes, inicializando el Master"
-kubeadm init --apiserver-advertise-address=172.16.16.100 --pod-network-cidr=192.168.0.0/16 >> /root/kubeinit.log 2>/dev/null
+kubeadm init --apiserver-advertise-address=172.16.16.100 --pod-network-cidr=192.168.0.0/16 --cri-socket /run/cri-dockerd.sock >> /root/kubeinit.log 2>/dev/null
 
 echo "[PASO 3] Deployar la red Calico"
-kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://docs.projectcalico.org/v3.18/manifests/calico.yaml >/dev/null 2>&1
+kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://projectcalico.docs.tigera.io/manifests/calico.yaml >/dev/null 2>&1
 
 echo "[PASO 4] Generar y guardar el comando para unirse al cluster en /joincluster.sh"
 kubeadm token create --print-join-command > /joincluster.sh 2>/dev/null
+
+echo "[PASO 5] Configurar permisos a usuarios para poder ejecutar comandos kubectl"
+export KUBECONFIG=/etc/kubernetes/admin.conf
+echo "export KUBECONFIG=/etc/kubernetes/admin.conf" | tee -a ~/.bashrc
+source ~/.bashrc
