@@ -1,14 +1,11 @@
 #!/bin/bash
 
-echo "[PASO 1]: Meter el WorkerNode al Cluster"
-apt install -qq -y sshpass >/dev/null 2>&1
-sshpass -p "kubeadmin" scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no kmaster:/joincluster.sh /joincluster.sh 2>/dev/null
-sshpass -p 'vagrant' scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@kmaster:holavagr.txr /home/vcamacho/holavagr.txr
-bash /joincluster.sh >/dev/null 2>&1
+echo "[PASO 1]: Instalar paquete SSHPass"
 
+yum install sshpass -y
 
+echo "[PASO 2]: Extraer desde Master el comando para unir (join) el Worker Node al Cluster"
+sshpass -p 'vagrant' scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@kmaster:incluir_nodo_a_cluster.sh /root/incluir_nodo_a_cluster.sh
 
-
-sshpass -p 'vagrant' scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no kmaster:holavagr.txr /home/vcamacho/holavagr.txr
-sshpass -p 'vagrant' ssh -o StrictHostKeyChecking=no vagrant@kmaster "ls /home/vagrant"
-sshpass -p 'vagrant' scp file.tar.gz root@xxx.xxx.xxx.194:/backup 
+echo "[PASO 3]: Correr el comando para unir (join) el Worker Node al Cluster"
+bash /root/incluir_nodo_a_cluster.sh
