@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
 #------------------ Variables a ingresar  --------------------------------- 
 
   sistema_operativo_box = "generic/rocky8"
-  CantidadWorkers = 1g
+  CantidadWorkers = 1
 
 # --------------- Configuraciones Generales  ---------------------------
 
