@@ -37,13 +37,21 @@ Vagrant.configure("2") do |config|
 
       kmaster.vm.hostname = servidor_nombre_os
       kmaster.vm.network "private_network", ip: servidor_ip
-      kmaster.vm.provider "virtualbox" do |vb|
-          vb.name = vm_nombre_virtual_box
-          vb.memory = 2048
-          vb.cpus = 1
-          vb.gui = true
-          vb.check_guest_additions = false
-        end
+
+      kmaster.vm.provider "virtualbox" do |v|
+          v.name = vm_nombre_virtual_box
+          v.memory = 2048
+          v.cpus = 2
+          v.gui = true
+          # v.check_guest_additions = false
+      end
+
+      kmaster.vm.provider :libvirt do |v|
+            v.memory  = 2048
+            v.nested  = true
+            v.cpus    = 2
+      end
+
       # kmaster.vm.provision "shell", path: "comandos-master.sh"
       kmaster.vm.post_up_message = "EXITO!!! La VM #{servidor_nombre_os} esta lista. Ingresa via SSH con vagrant@#{servidor_ip}"
   end
@@ -59,13 +67,21 @@ Vagrant.configure("2") do |config|
 
         node.vm.hostname = servidor_nombre_os
         node.vm.network "private_network", ip: servidor_ip
-        node.vm.provider "virtualbox" do |vb|
-            vb.name = vm_nombre_virtual_box
-            vb.memory = 1024
-            vb.cpus = 1
-            vb.gui = true
-            vb.check_guest_additions = false
-          end
+
+        node.vm.provider "virtualbox" do |v|
+          v.name = vm_nombre_virtual_box
+          v.memory = 1024
+          v.cpus = 1
+          v.gui = true
+          # v.check_guest_additions = false
+      end
+
+      node.vm.provider :libvirt do |v|
+            v.memory  = 1024
+            v.nested  = true
+            v.cpus    = 1
+      end
+      
         # node.vm.provision "shell", path: "comandos-master.sh"
         node.vm.post_up_message = "EXITO!!! La VM #{servidor_nombre_os} esta lista. Ingresa via SSH con vagrant@#{servidor_ip}"
     end
