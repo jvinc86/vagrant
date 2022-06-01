@@ -5,6 +5,9 @@
 #  - Kubernetes (kubeadm, kubelet, kubectl)
 #  - Container Runtime Interface (CRI) llamado: cri-dockerd (de la marca Mirantis)
 
+echo "[PASO 0 - BOOTSTRAP]: Configurar servidor DNS (en caso de que sea necesario)"
+sed -i 's/^nameserver.*/nameserver 172.17.128.1/g' /etc/resolv.conf
+
 echo "[PASO 1 - BOOTSTRAP]: Actualizar paquetes Rocky"
 dnf update -y
 
