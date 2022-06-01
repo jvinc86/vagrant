@@ -2,7 +2,6 @@
 # Bash script para unir los worker nodes al Cluster Kubernetes
 
 echo "[PASO 1]: Instalar paquete SSHPass"
-
 yum install sshpass -y
 
 echo "[PASO 2]: Extraer desde Master el comando para unir (join) el Worker Node al Cluster"
