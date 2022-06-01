@@ -10,7 +10,7 @@ echo -e "------------------------ INICIO INSTALACION KUBERNETES ----------------
 echo -e "-------------------------------------------------------------------------------\n\n"
 
 
-echo "[PASO 1 - KUBERNETES]: Instalar Docker"
+echo "[INSTALACION KUBERNETES | PASO 1]: Instalar Docker"
 dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
 dnf install -y docker-ce
 systemctl start docker
@@ -18,21 +18,21 @@ systemctl enable docker
 usermod -aG docker $USER
 
 
-echo "[PASO 2 - KUBERNETES]: Deshabilitar la swap (memoria en disco)"
+echo "[INSTALACION KUBERNETES | PASO 2]: Deshabilitar la swap (memoria en disco)"
 swapoff -a
 sed -i '/swap/d' /etc/fstab
 
 
-echo "[PASO 3 - KUBERNETES]: Configura SELinux en el modo permisivo"
+echo "[INSTALACION KUBERNETES | PASO 3]: Configura SELinux en el modo permisivo"
 setenforce 0
 sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
 
 
-echo "[PASO 4 - KUBERNETES]: Cargar el modulo br_netfilter que permite el trafico VxLAN"
+echo "[INSTALACION KUBERNETES | PASO 4]: Cargar el modulo br_netfilter que permite el trafico VxLAN"
 modprobe br_netfilter
 
 
-echo "[PASO 5 - KUBERNETES]: Crear archivo kube.conf"
+echo "[INSTALACION KUBERNETES | PASO 5]: Crear archivo kube.conf"
 cat << EOF >  /etc/sysctl.d/kube.conf
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables  = 1
@@ -41,7 +41,7 @@ EOF
 sysctl --system 
 
 
-echo "[PASO 6 - KUBERNETES]: Agrega en yum.repos.d el REPO para los componentes: kubeadm, kubelet, kubectl"
+echo "[INSTALACION KUBERNETES | PASO 6]: Agrega en yum.repos.d el REPO para los componentes: kubeadm, kubelet, kubectl"
 cat << EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -54,13 +54,13 @@ exclude=kube*
 EOF
 
 
-echo "[PASO 7 - KUBERNETES]: Instalar kubeadm, kubelet, kubectl"
+echo "[INSTALACION KUBERNETES | PASO 7]: Instalar kubeadm, kubelet, kubectl"
 yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 systemctl start kubelet
 systemctl enable kubelet
 
 
-echo "[PASO 8 - KUBERNETES]: Instalar Mirantis cri-dockerd"
+echo "[INSTALACION KUBERNETES | PASO 8]: Instalar Mirantis cri-dockerd"
 yum -y install git wget curl
 VER=$(curl -s https://api.github.com/repos/Mirantis/cri-dockerd/releases/latest|grep tag_name | cut -d '"' -f 4|sed 's/v//g')
 echo $VER
@@ -70,14 +70,14 @@ rm -rf xvf cri-dockerd-${VER}.amd64.tgz
 mv cri-dockerd/cri-dockerd /usr/local/bin/
 
 
-echo "[PASO 9 - KUBERNETES]: Configurar el servicio de Linux para cri-dockerd, es decir, las unidades systemd para cri-dockerd"
+echo "[INSTALACION KUBERNETES | PASO 9]: Configurar el servicio de Linux para cri-dockerd, es decir, las unidades systemd para cri-dockerd"
 wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.service
 wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.socket
 mv cri-docker.socket cri-docker.service /etc/systemd/system/
 sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
 
 
-echo "[PASO 10 - KUBERNETES]: Iniciar y habilitar los servicios cri-docker.service y cri-docker.socket"
+echo "[INSTALACION KUBERNETES | PASO 10]: Iniciar y habilitar los servicios cri-docker.service y cri-docker.socket"
 systemctl daemon-reload
 systemctl enable cri-docker.service
 systemctl enable --now cri-docker.socket

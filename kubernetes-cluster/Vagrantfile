@@ -21,6 +21,7 @@ Vagrant.configure(2) do |config|
 
 # --------------- Configuraciones Generales  ---------------------------
 
+  config.vm.provision "shell", path: "01-bootstrap-os.sh"
   config.vm.provision "shell", path: "02-script-instalacion-kubernetes.sh"
 
   config.vm.provision "file", source: mi_llave_publica, destination: ruta_servidor_authorized_keys

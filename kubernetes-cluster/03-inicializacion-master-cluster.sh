@@ -6,33 +6,45 @@ echo -e "------------------------ INICIALIZACION DEL CLUSTER K8S (MASTER) ------
 echo -e "-----------------------------------------------------------------------------------------\n\n"
 
 
-echo "[PASO 1] Pullar los contenedores requeridos (scheduler, etcd, controller manager, etc.)"
+echo "[ INICIAR CLUSTER | PASO 1] Pullar los contenedores requeridos (scheduler, etcd, controller manager, etc.)"
 kubeadm config images pull --cri-socket unix:///var/run/cri-dockerd.sock
 
 
-echo "[PASO 2] Inicializar el Cluster Kubernetes, inicializando el Master"
+echo "[ INICIAR CLUSTER | PASO 2] Inicializar el Cluster Kubernetes, inicializando el Master"
 kubeadm init --apiserver-advertise-address=192.168.56.10 --pod-network-cidr=192.168.0.0/16 --cri-socket /run/cri-dockerd.sock | tee /root/cluster_inicializacion.log
 
 
-echo "[PASO 3] Deployar la red Calico"
+echo "[ INICIAR CLUSTER | PASO 3] Deployar la red Calico"
 kubectl --kubeconfig=/etc/kubernetes/admin.conf create -f https://projectcalico.docs.tigera.io/manifests/calico.yaml | tee /root/deploy_red_calisto.log
 
 
-echo "[PASO 4] Generar y guardar en un archivo el comando para unirse al cluster"
+echo "[ INICIAR CLUSTER | PASO 4] Generar y guardar en un archivo el comando para unirse al cluster"
 kubeadm token create --print-join-command | tee /home/vagrant/incluir_nodo_a_cluster.sh
 
 
-echo "[PASO 5] Agregar en el comando anterior la parte del Container Runtime Interface CRI"
+echo "[ INICIAR CLUSTER | PASO 5] Agregar en el comando anterior la parte del Container Runtime Interface CRI"
 sed -i 's/$/ --cri-socket \/run\/cri-dockerd.sock/' /home/vagrant/incluir_nodo_a_cluster.sh
 
 
-echo "[PASO 6] Configurar permisos a usuario ROOT para poder ejecutar comandos kubectl"
+echo "[ INICIAR CLUSTER | PASO 6.1] Configurar permisos a usuario ROOT para poder ejecutar comandos kubectl"
 export KUBECONFIG=/etc/kubernetes/admin.conf
 echo "export KUBECONFIG=/etc/kubernetes/admin.conf" | tee -a ~/.bashrc
 source ~/.bashrc
 
 
-echo "[PASO 7] Crear alias para kubectl"
+echo "[ INICIAR CLUSTER | PASO 6.2] Configurar permisos a USUARIO ANSIBLE para poder ejecutar comandos kubectl"
+mkdir -p /home/ansible/.kube
+cp -i /etc/kubernetes/admin.conf /home/ansible/.kube/config
+chown ansible:ansible /home/ansible/.kube/config
+
+
+echo "[ INICIAR CLUSTER | PASO 6.3] Configurar permisos a USUARIO VAGRANT para poder ejecutar comandos kubectl"
+mkdir -p /home/vagrant/.kube
+cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+chown vagrant:vagrant /home/vagrant/.kube/config
+
+
+echo "[ INICIAR CLUSTER | PASO 7] Crear alias para kubectl"
 cat <<EOF | tee -a ~/.bashrc
 #ALIAS KUBERNETES
 alias k='kubectl'
