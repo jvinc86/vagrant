@@ -33,10 +33,10 @@ sed -i 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers    # Debian
 echo "[PASO 5 - BOOTSTRAP]: Configurar registros DNS locales"
 cat << EOF >> /etc/hosts
 # Puppet Servidores
-192.168.56.80 puppetmaster puppetmaster.vincenup.com
-192.168.56.81 puppetagent1 puppetagent1-paris puppetagent1.vincenup.com
-192.168.56.82 puppetagent2 puppetagent2-newyork puppetagent2.vincenup.com
-192.168.56.83 puppetagent3 puppetagent3-londres puppetagent3.vincenup.com
+192.168.56.80 puppetmaster puppet
+192.168.56.81 puppetagent1 
+192.168.56.82 puppetagent2
+192.168.56.83 puppetagent3
 EOF
 
 
