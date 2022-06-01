@@ -1,6 +1,11 @@
 #!/bin/bash
 # Bash script para inicializar el Master Node, creando oficialmente el Cluster Kubernetes
 
+echo -e "\n\n-----------------------------------------------------------------------------------------"
+echo -e "------------------------ INICIALIZACION DEL CLUSTER K8S (MASTER) ------------------------"
+echo -e "-----------------------------------------------------------------------------------------\n\n"
+
+
 echo "[PASO 1] Pullar los contenedores requeridos (scheduler, etcd, controller manager, etc.)"
 kubeadm config images pull --cri-socket unix:///var/run/cri-dockerd.sock
 

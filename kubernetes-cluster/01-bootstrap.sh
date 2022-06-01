@@ -1,28 +1,63 @@
 #!/bin/bash
-# BOOTSTRAP para dejar configurado y preparado el sistema operativo
+# Script bootstrap para dejar el Sistema Operativo listo para su uso
 
-# Actualizar repositorios APT y hacer upgrade de paquetes
-sudo apt update && sudo apt upgrade -y
+echo -e "\n\n-----------------------------------------------------------------------------"
+echo -e "----------------------- INICIO DE BOOTSTRAP PARA EL OS ----------------------"
+echo -e "-----------------------------------------------------------------------------\n\n"
 
-# Configurar timezone
-sudo timedatectl set-timezone Europe/Paris
+echo "[PASO 0 - BOOTSTRAP]: Configurar servidor DNS (OJO! Solo en caso de que sea necesario)"
+servidor_dns=172.17.128.1
+sed -i "s/^nameserver.*/nameserver $servidor_dns/g" /etc/resolv.conf
 
-#Agregar otro usuario para que administre Ansible
-usuario=ansible
-contrasena=123
-sudo useradd -U $usuario -m -s /bin/bash -G sudo
-echo "$usuario:$contrasena" | chpasswd
 
-#Evitar que pida el password a cada rato para usuarios que sean parte del grupo sudo
-sed -i 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers
+echo "[PASO 1 - BOOTSTRAP]: Configurar timezone"
+timedatectl set-timezone Europe/Paris
 
-#Agregar al sudoers este nuevo usuario
-echo "$usuario ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-#Deshabilitar firewall
-sudo ufw disable
+echo "[PASO 2 - BOOTSTRAP]: Actualizar repositorios del OS y actualizar paquetes"
+# apt update && apt upgrade -y           # Debian/Ubuntu
+dnf update -y                          # RedHat/Centos/Rocky
 
-# Permitir accesos por SSH con UserPassword y con Llave
+
+echo "[PASO 3 - BOOTSTRAP]: Permitir accesos por SSH con UserPassword y con Llave"
 sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 sed -i 's/^#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
-sudo service sshd restart
+service sshd restart
+
+
+echo "[PASO 4 - BOOTSTRAP]: No pedir password a usuarios SUDO"
+# sed -i 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers    # Debian/Ubuntu
+sed -i 's/^%wheel.*/%wheel  ALL=(ALL)  NOPASSWD: ALL/g' /etc/sudoers    # RedHat/Centos/Rocky
+
+
+echo "[PASO 5 - BOOTSTRAP]: Configurar registros DNS locales"
+cat << EOF >> /etc/hosts
+# Kubernetes Servidores
+192.168.56.10 kmaster kmaster.vincenup.com
+192.168.56.11 kworker1 kworker-paris kworker1.vincenup.com
+192.168.56.12 kworker2 kworker2-newyork kworker2.vincenup.com
+192.168.56.13 kworker3 kworker3-londres kworker3.vincenup.com
+EOF
+
+
+echo "[PASO 6 - BOOTSTRAP]: Deshabilitar Firewall"
+# ufw disable                                              # Debian/Ubuntu
+systemctl stop firewalld && systemctl disable firewalld       # RedHat/Centos/Rocky
+
+
+#---------  Crear usuario: Comentar la parte que no pertenezca al OS ---------------------
+# echo "[PASO 7 - BOOTSTRAP]: Agregar un nuevo usuario con permisos administradores (Debian/Ubuntu)"
+# usuario=ansible
+# contrasena=123
+# useradd -U $usuario -m -s /bin/bash -G sudo  # Debian/Ubuntu
+# echo "$usuario:$contrasena" | chpasswd
+# echo "$usuario ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+
+echo "[PASO 7 - BOOTSTRAP]: Agregar un nuevo usuario con permisos de Administrador (RedHat/Centos/Rocky)"
+usuario=ansible
+contrasena=123
+useradd -U $usuario -m -s /bin/bash -G wheel # RedHat/Centos/Rocky
+echo "$usuario:$contrasena" | chpasswd
+echo "$usuario ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+#------------------------------------------------------------------------------------------
