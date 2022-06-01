@@ -5,9 +5,9 @@ echo -e "\n\n-------------------------------------------------------------------
 echo -e "----------------------- INICIO DE BOOTSTRAP PARA EL OS ----------------------"
 echo -e "-----------------------------------------------------------------------------\n\n"
 
-echo "[PASO 0 - BOOTSTRAP]: Configurar servidor DNS (OJO! Solo en caso de que sea necesario)"
-servidor_dns=172.17.128.1
-sed -i "s/^nameserver.*/nameserver $servidor_dns/g" /etc/resolv.conf
+# echo "[PASO 0 - BOOTSTRAP]: Configurar servidor DNS (OJO! Solo en caso de que sea necesario)"
+# servidor_dns=172.17.128.1
+# sed -i "s/^nameserver.*/nameserver $servidor_dns/g" /etc/resolv.conf
 
 
 echo "[PASO 1 - BOOTSTRAP]: Configurar timezone"
@@ -32,7 +32,7 @@ sed -i 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers    # Debian
 
 echo "[PASO 5 - BOOTSTRAP]: Configurar registros DNS locales"
 cat << EOF >> /etc/hosts
-# Kubernetes Servidores
+# Puppet Servidores
 192.168.56.80 puppetmaster puppetmaster.vincenup.com
 192.168.56.81 puppetagent1 puppetagent1-paris puppetagent1.vincenup.com
 192.168.56.82 puppetagent2 puppetagent2-newyork puppetagent2.vincenup.com
