@@ -29,7 +29,7 @@ systemctl enable puppetserver
 
 echo -e "\n[INSTALAR PUPPETSERVER - PASO 6]: Crea manifiesto 'site.pp' y modulo 'init.pp'\n"
 cat <<EOF | tee /etc/puppetlabs/code/environments/production/manifests/site.pp
-node 'puppetagent1' {
+node 'servidor1' {
    include apache2
 }
 EOF

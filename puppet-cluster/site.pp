@@ -1,3 +1,3 @@
-node 'puppetagent1' {
+node 'servidor1' {
    include apache2
 }
