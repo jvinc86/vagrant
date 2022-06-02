@@ -1,3 +1,3 @@
-node 'servidor1' {
+node /^servidor[1-4]$/ {
    include apache2
 }
