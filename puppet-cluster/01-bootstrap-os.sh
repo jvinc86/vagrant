@@ -10,43 +10,44 @@ echo -e "-----------------------------------------------------------------------
 # sed -i "s/^nameserver.*/nameserver $servidor_dns/g" /etc/resolv.conf
 
 
-echo "[PASO 1 - BOOTSTRAP]: Configurar timezone"
+echo -e "\n[PASO 1 - BOOTSTRAP]: Configurar timezone\n"
 timedatectl set-timezone Europe/Paris
 
 
-echo "[PASO 2 - BOOTSTRAP]: Actualizar repositorios del OS y actualizar paquetes"
+echo -e "\n[PASO 2 - BOOTSTRAP]: Actualizar repositorios del OS y actualizar paquetes\n"
 apt update && apt upgrade -y           # Debian/Ubuntu
 # dnf update -y                          # RedHat/Centos/Rocky
 
 
-echo "[PASO 3 - BOOTSTRAP]: Permitir accesos por SSH con UserPassword y con Llave"
+echo -e "\n[PASO 3 - BOOTSTRAP]: Permitir accesos por SSH con UserPassword y con Llave\n"
 sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 sed -i 's/^#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
 service sshd restart
 
 
-echo "[PASO 4 - BOOTSTRAP]: No pedir password a usuarios SUDO"
+echo -e "\n[PASO 4 - BOOTSTRAP]: No pedir password a usuarios SUDO\n"
 sed -i 's/^%sudo.*/%sudo ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers    # Debian/Ubuntu
 # sed -i 's/^%wheel.*/%wheel  ALL=(ALL)  NOPASSWD: ALL/g' /etc/sudoers    # RedHat/Centos/Rocky
 
 
-echo "[PASO 5 - BOOTSTRAP]: Configurar registros DNS locales"
+echo -e "\n[PASO 5 - BOOTSTRAP]: Configurar registros DNS locales\n"
 cat << EOF >> /etc/hosts
+
 # Puppet Servidores
-192.168.56.80 puppetmaster puppet
-192.168.56.81 puppetagent1 
-192.168.56.82 puppetagent2
-192.168.56.83 puppetagent3
+192.168.56.80 puppetmaster  puppetmaster.vincenup.com   puppetmaster.home   puppet 
+192.168.56.81 servidor1     servidor1.vincenup.com      servidor1.home
+192.168.56.82 servidor2     servidor2.vincenup.com      servidor2.home
+192.168.56.83 servidor3     servidor3.vincenup.com      servidor3.home
 EOF
 
 
-echo "[PASO 6 - BOOTSTRAP]: Deshabilitar Firewall"
+echo -e "\n[PASO 6 - BOOTSTRAP]: Deshabilitar Firewall\n"
 ufw disable                                              # Debian/Ubuntu
 # systemctl stop firewalld && systemctl disable firewalld       # RedHat/Centos/Rocky
 
 
 #---------  Crear usuario: Comentar la parte que no pertenezca al OS ---------------------
-echo "[PASO 7 - BOOTSTRAP]: Agregar un nuevo usuario con permisos administradores (Debian/Ubuntu)"
+echo -e "\n[PASO 7 - BOOTSTRAP]: Agregar usuario ANSIBLE con permisos administradores (Debian/Ubuntu)\n"
 usuario=ansible
 contrasena=123
 useradd -U $usuario -m -s /bin/bash -G sudo  # Debian/Ubuntu
@@ -54,7 +55,7 @@ echo "$usuario:$contrasena" | chpasswd
 echo "$usuario ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 
-# echo "[PASO 7 - BOOTSTRAP]: Agregar un nuevo usuario con permisos de Administrador (RedHat/Centos/Rocky)"
+# echo -e "\n[PASO 7 - BOOTSTRAP]: Agregar usuario ANSIBLE con permisos de Administrador (RedHat/Centos/Rocky)\n"
 # usuario=ansible
 # contrasena=123
 # useradd -U $usuario -m -s /bin/bash -G wheel # RedHat/Centos/Rocky
