@@ -50,8 +50,9 @@ servidores_web:
     ansible_password: vagrant
 
 servidores_bd:
-  mysql:
-    ansible_host: srvrocky2
+  hosts:
+    mysql:
+      ansible_host: srvrocky2
   vars:
     ansible_user: vagrant
     ansible_password: vagrant
