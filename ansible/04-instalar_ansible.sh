@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Actualizar repo y Upgrade paquetes
-apt update
-apt upgrade -y
+apt-get update
+apt-get upgrade -y
 
 # Instalar Ansible
-apt install software-properties-common
+apt-get install -y software-properties-common
 add-apt-repository --yes --update ppa:ansible/ansible
-apt install ansible
+apt-get install -y ansible
 
 #Crear carpeta para playbooks Ansible
 mkdir /home/vagrant/ansible_infra
@@ -123,9 +123,9 @@ ssh-keygen -t ed25519 -b 521 -C "Servidor Ansible Master" -N "" -f /home/vagrant
 
 # Copiar llaves a servidores
 sudo apt install sshpass -y
-sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/ansible-ssh-key.pub vagrant@srvubuntu1
-sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/ansible-ssh-key.pub vagrant@srvubuntu2
-sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/ansible-ssh-key.pub vagrant@srvrocky1
+sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/ansible-ssh-key.pub -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@srvubuntu1
+sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/ansible-ssh-key.pub -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@srvubuntu2
+sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/ansible-ssh-key.pub -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@srvrocky1
 # sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/ansible-ssh-key.pub vagrant@srvrocky2
 
 # Probar playbook
