@@ -167,6 +167,9 @@ chown -R ansible:ansible /home/ansible/ansible_infra/
 
 
 echo -e "\n[ANSIBLE MASTER - PASO 11]: Crear un par de llaves SSL para el usuario 'ansible' en el servidor Ansible Master\n"
+mkdir /home/ansible/.ssh/
+chown ansible:ansible /home/ansible/.ssh/
+chmod 700 /home/ansible/.ssh/
 ssh-keygen -t ed25519 -b 521 -C "Servidor Ansible Master" -N "" -f /home/ansible/.ssh/ansible-ssh-key
 
 echo -e "\n[ANSIBLE MASTER - PASO 12]: Cambiar owner de llave recien creada al usuario 'ansible' en el servidor Ansible Master\n"
