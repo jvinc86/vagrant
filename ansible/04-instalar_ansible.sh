@@ -22,7 +22,7 @@ echo "$usuario:$contrasena" | chpasswd
 
 
 echo -e "\n[ANSIBLE MASTER - PASO 4]: Crear carpeta del PROYECTO en el HOME del usuario 'ansible' \n"
-mkdir /home/ansible/ansible_infra
+mkdir -p /home/ansible/ansible_infra
 cd /home/ansible/ansible_infra
 
 
@@ -167,15 +167,13 @@ chown -R ansible:ansible /home/ansible/ansible_infra/
 
 
 echo -e "\n[ANSIBLE MASTER - PASO 11]: Crear un par de llaves SSL para el usuario 'ansible' en el servidor Ansible Master\n"
-mkdir /home/ansible/.ssh/
+mkdir -p /home/ansible/.ssh/
 chown ansible:ansible /home/ansible/.ssh/
 chmod 700 /home/ansible/.ssh/
 ssh-keygen -t ed25519 -b 521 -C "Servidor Ansible Master" -N "" -f /home/ansible/.ssh/ansible-ssh-key
-
-echo -e "\n[ANSIBLE MASTER - PASO 12]: Cambiar owner de llave recien creada al usuario 'ansible' en el servidor Ansible Master\n"
 chown -R ansible:ansible /home/ansible/.ssh/ansible-ssh-key*
 
-echo -e "\n[ANSIBLE MASTER - PASO 13]: Copiar remotamente la 'llave publica Ansible' a cada servidor del INVENTARIO\n"
+echo -e "\n[ANSIBLE MASTER - PASO 12]: Copiar remotamente la 'llave publica Ansible' a cada servidor del INVENTARIO\n"
 sudo apt-get install sshpass -y
 sshpass -p vagrant ssh-copy-id -i /home/ansible/.ssh/ansible-ssh-key.pub -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@srvubuntu1
 sshpass -p vagrant ssh-copy-id -i /home/ansible/.ssh/ansible-ssh-key.pub -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@srvubuntu2
@@ -183,26 +181,26 @@ sshpass -p vagrant ssh-copy-id -i /home/ansible/.ssh/ansible-ssh-key.pub -o User
 # sshpass -p vagrant ssh-copy-id -i /home/ansible/.ssh/ansible-ssh-key.pub -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@srvrocky2
 
 
-echo -e "\n[ANSIBLE MASTER - PASO 14]: Ejecutar playbook de conexiones SSH con usuario 'vagrant' definido en el INVENTARIO para conectar por SSH a los SERVIDORES\n"
+echo -e "\n[ANSIBLE MASTER - PASO 13]: Ejecutar playbook de conexiones SSH con usuario 'vagrant' definido en el INVENTARIO para conectar por SSH a los SERVIDORES\n"
 ansible-playbook /home/ansible/ansible_infra/conexion_ssh.yaml
 
 
-echo -e "\n[ANSIBLE MASTER - PASO 15]: Ejecutar playbook BOOTSTRAP con usuario 'vagrant' definido en el INVENTARIO para conectar por SSH a los SERVIDORES\n"
+echo -e "\n[ANSIBLE MASTER - PASO 14]: Ejecutar playbook BOOTSTRAP con usuario 'vagrant' definido en el INVENTARIO para conectar por SSH a los SERVIDORES\n"
 ansible-playbook /home/ansible/ansible_infra/bootstrap.yaml
 
 
 # ---- Despues de este paso y si el bootstrap.yaml corrio bien, se tuvo que hacer creado el usuario 'ansible' en TODOS los SERVIDORES a traves del Playbook BOOTSTRAP
 
 
-echo -e "\n[ANSIBLE MASTER - PASO 16.1]: En el INVENTARIO, cambiar usuario 'vagrant' por usuario 'ansible' que existe ya en los SERVIDORES\n"
+echo -e "\n[ANSIBLE MASTER - PASO 15.1]: En el INVENTARIO, cambiar usuario 'vagrant' por usuario 'ansible' que existe ya en los SERVIDORES\n"
 sed -i 's/ansible_user.*/ansible_user: ansible/g' /home/ansible/ansible_infra/inventario.yaml
 
-echo -e "\n[ANSIBLE MASTER - PASO 16.2]: En el INVENTARIO, comentar linea de password, porque ahora nos conectaremos con llave SSH\n"
+echo -e "\n[ANSIBLE MASTER - PASO 15.2]: En el INVENTARIO, comentar linea de password, porque ahora nos conectaremos con llave SSH\n"
 sed -i 's/ansible_password.*/#ansible_password: /g' /home/ansible/ansible_infra/inventario.yaml
 
-echo -e "\n[ANSIBLE MASTER - PASO 16.3]: En el INVENTARIO, agregar linea para usar llave privada de usuario 'ansible'\n"
+echo -e "\n[ANSIBLE MASTER - PASO 15.3]: En el INVENTARIO, agregar linea para usar llave privada de usuario 'ansible'\n"
 sed -i '/ansible_password.*/a \ \ \ \ ansible_ssh_private_key_file: \/home\/ansible\/.ssh\/ansible-ssh-key' /home/ansible/ansible_infra/inventario.yaml
 
 
-echo -e "\n[ANSIBLE MASTER - PASO 17]: Ejecutar playbook BOOTSTRAP con usuario 'ansible' y su llave privada, ambas cosas ya definidas en el INVENTARIO\n"
+echo -e "\n[ANSIBLE MASTER - PASO 16]: Ejecutar playbook BOOTSTRAP con usuario 'ansible' y su llave privada, ambas cosas ya definidas en el INVENTARIO\n"
 ansible-playbook /home/ansible/ansible_infra/bootstrap.yaml
