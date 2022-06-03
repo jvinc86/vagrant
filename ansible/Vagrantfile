@@ -22,7 +22,7 @@ Vagrant.configure(2) do |config|
   CantServRocky = 1
 # --------------- Configuraciones Generales  ---------------------------
 
-  config.vm.provision "shell", path: "registros_dns_local.sh"
+  config.vm.provision "shell", path: "01-crear_dns_local.sh"
   # config.vm.provision "shell", path: "ALGUN SCRIPT"
 
   config.vm.provision "file", source: mi_llave_publica, destination: ruta_servidor_authorized_keys
@@ -58,7 +58,7 @@ Vagrant.configure(2) do |config|
             v.cpus    = 1
         end
       
-        node.vm.provision "shell", path: "permitir_ssh_ubuntu.sh"
+        node.vm.provision "shell", path: "02-permitir_ssh_ubuntu.sh"
         node.vm.post_up_message = "EXITO!!! La VM #{servidor_nombre_os} esta lista. Ingresa via SSH con vagrant@#{servidor_ip}"
     end
 
@@ -92,7 +92,7 @@ Vagrant.configure(2) do |config|
           v.cpus    = 1
       end
     
-      node.vm.provision "shell", path: "permitir_ssh_rocky.sh"
+      node.vm.provision "shell", path: "03-permitir_ssh_rocky.sh"
       node.vm.post_up_message = "EXITO!!! La VM #{servidor_nombre_os} esta lista. Ingresa via SSH con vagrant@#{servidor_ip}"
   end
 
@@ -125,7 +125,7 @@ config.vm.define "ansiblemaster" do |ansiblemaster|
       v.cpus    = 1
   end
 
-  ansiblemaster.vm.provision "shell", path: "instalar_ansible.sh"
+  ansiblemaster.vm.provision "shell", path: "04-instalar_ansible.sh"
   ansiblemaster.vm.post_up_message = "EXITO!!! La VM #{servidor_nombre_os} esta lista. Ingresa via SSH con vagrant@#{servidor_ip}"
 end
 
