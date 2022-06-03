@@ -130,3 +130,4 @@ sshpass -p vagrant ssh-copy-id -i /home/vagrant/.ssh/ansible-ssh-key.pub -o User
 
 # Probar playbook
 ansible-playbook /home/vagrant/ansible_infra/conexion_ssh.yaml
+ansible-playbook /home/vagrant/ansible_infra/bootstrap.yaml
