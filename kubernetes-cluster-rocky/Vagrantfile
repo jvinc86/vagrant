@@ -1,0 +1,97 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+Vagrant.configure(2) do |config|
+
+# --------------- Configuraciones de llaves SSH ---------------------- 
+  mi_llave_privada = "~/.ssh/id_ed25519"
+  mi_llave_publica = "~/.ssh/id_ed25519.pub"
+  llave_de_vagrant = "~/.vagrant.d/insecure_private_key"
+  ruta_servidor_authorized_keys = "/home/vagrant/.ssh/authorized_keys"
+
+  config.ssh.insert_key = false  # Deshabilita la insercion automatica de una key por parte de Vagrant
+  config.ssh.private_key_path = [ mi_llave_privada , llave_de_vagrant ] # Llave privada: Configuramos 2 llaves posibles para usar como conexion, la de vcamacho y la de vagrant 
+
+#------------------ Variables a ingresar  --------------------------------- 
+
+  sistema_operativo_box = "generic/rocky8"
+  CantidadWorkers = 2
+
+# --------------- Configuraciones Generales  ---------------------------
+
+  config.vm.provision "shell", path: "01-bootstrap-os.sh"
+  config.vm.provision "shell", path: "02-script-instalacion-kubernetes.sh"
+
+  config.vm.provision "file", source: mi_llave_publica, destination: ruta_servidor_authorized_keys
+  config.vm.box = sistema_operativo_box
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+  config.vm.box_check_update = true
+  config.vm.boot_timeout = 600
+  
+#----------------------- Kubernetes Master -----------------------------
+
+config.vm.define "kmaster" do |kmaster|
+  servidor_ip           = "192.168.56.10"
+  servidor_nombre_os    = "kmaster"
+  vm_nombre_virtual_box = "kmaster"
+
+  kmaster.vm.hostname   = servidor_nombre_os
+
+  kmaster.vm.network "private_network", ip: servidor_ip
+
+  kmaster.vm.provider :virtualbox do |v|
+      v.name    = vm_nombre_virtual_box
+      v.memory  = 2048
+      v.cpus    = 2
+      # v.gui = true
+      # v.check_guest_additions = false
+  end
+
+  kmaster.vm.provider :libvirt do |v|
+      v.memory  = 2048
+      v.nested  = true
+      v.cpus    = 2
+  end
+
+  kmaster.vm.provision "shell", path: "03-inicializacion-master-cluster.sh"
+  kmaster.vm.post_up_message = "EXITO!!! La VM #{servidor_nombre_os} esta lista. Ingresa via SSH con vagrant@#{servidor_ip}"
+end
+
+
+#----------------------- Kubernetes Workers -----------------------------
+
+  (1..CantidadWorkers).each do |i|
+    
+    config.vm.define "kworker#{i}" do |node|
+        servidor_ip = "192.168.56.1#{i}"
+        servidor_nombre_os =  "kworker#{i}"
+        vm_nombre_virtual_box = "kworker#{i}"
+
+        node.vm.hostname = servidor_nombre_os
+        node.vm.network "private_network", ip: servidor_ip
+
+        node.vm.provider :virtualbox do |v|
+            v.name    = vm_nombre_virtual_box
+            v.memory  = 1024
+            v.cpus    = 1
+            # v.gui = true
+            # v.check_guest_additions = false
+        end
+
+        node.vm.provider :libvirt do |v|
+            v.memory  = 1024
+            v.nested  = true
+            v.cpus    = 1
+        end
+      
+        node.vm.provision "shell", path: "04-unir-workernodes-cluster.sh"
+        node.vm.post_up_message = "EXITO!!! La VM #{servidor_nombre_os} esta lista. Ingresa via SSH con vagrant@#{servidor_ip}"
+    end
+
+  end
+  
+#----------------------------------------------------------------------------------------------
+
+end
