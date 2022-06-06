@@ -9,76 +9,47 @@ echo -e "\n\n-------------------------------------------------------------------
 echo -e "------------------------ INICIO INSTALACION KUBERNETES ------------------------"
 echo -e "-------------------------------------------------------------------------------\n\n"
 
+# echo "[INSTALACION KUBERNETES | PASO 0]: Configura SELinux (RedHat) en el modo permisivo"
+# setenforce 0
+# sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
 
-echo "[INSTALACION KUBERNETES | PASO 1]: Instalar Docker"
-dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
-dnf install -y docker-ce
-systemctl start docker
-systemctl enable docker
+
+echo -e "\n[INSTALACION KUBERNETES | PASO 1]: Instalar Docker\n"
+curl -fsSL https://download.docker.com/linux/$(lsb_release -is | awk '{print tolower($0)}')/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/$(lsb_release -is | awk '{print tolower($0)}') $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt update -y
+apt install docker-ce docker-ce-cli containerd.io -y
 usermod -aG docker $USER
 
 
-echo "[INSTALACION KUBERNETES | PASO 2]: Deshabilitar la swap (memoria en disco)"
+echo -e "\n[INSTALACION KUBERNETES | PASO 2]: Deshabilitar la swap (memoria en disco)\n"
 swapoff -a
 sed -i '/swap/d' /etc/fstab
 
 
-echo "[INSTALACION KUBERNETES | PASO 3]: Configura SELinux en el modo permisivo"
-setenforce 0
-sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
-
-
-echo "[INSTALACION KUBERNETES | PASO 4]: Cargar el modulo br_netfilter que permite el trafico VxLAN"
+echo -e "\n[INSTALACION KUBERNETES | PASO 3]: Cargar el modulo br_netfilter que permite el trafico VxLAN\n"
 modprobe br_netfilter
 
 
-echo "[INSTALACION KUBERNETES | PASO 5]: Crear archivo kube.conf"
-cat << EOF >  /etc/sysctl.d/kube.conf
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables  = 1
-net.ipv4.ip_forward                 = 1
-EOF
-sysctl --system 
+echo -e "\n[INSTALACION KUBERNETES | PASO 4]: Update the apt package index and install packages needed to use the Kubernetes apt repository\n"
+apt-get update
+apt-get install -y apt-transport-https ca-certificates curl
 
 
-echo "[INSTALACION KUBERNETES | PASO 6]: Agrega en yum.repos.d el REPO para los componentes: kubeadm, kubelet, kubectl"
-cat << EOF > /etc/yum.repos.d/kubernetes.repo
-[kubernetes]
-name=Kubernetes
-baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-enabled=1
-gpgcheck=1
-repo_gpgcheck=1
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-exclude=kube*
-EOF
+echo -e "\n[INSTALACION KUBERNETES | PASO 5]: Download the Google Cloud public signing key\n"
+curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
 
 
-echo "[INSTALACION KUBERNETES | PASO 7]: Instalar kubeadm, kubelet, kubectl"
-yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
-systemctl start kubelet
-systemctl enable kubelet
+echo -e "\n[INSTALACION KUBERNETES | PASO 6]: Add the Kubernetes APT repository\n"
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 
-echo "[INSTALACION KUBERNETES | PASO 8]: Instalar Mirantis cri-dockerd"
-yum -y install git wget curl
-VER=$(curl -s https://api.github.com/repos/Mirantis/cri-dockerd/releases/latest|grep tag_name | cut -d '"' -f 4|sed 's/v//g')
-echo $VER
-wget https://github.com/Mirantis/cri-dockerd/releases/download/v${VER}/cri-dockerd-${VER}.amd64.tgz
-tar xvf cri-dockerd-${VER}.amd64.tgz
-rm -rf xvf cri-dockerd-${VER}.amd64.tgz
-mv cri-dockerd/cri-dockerd /usr/local/bin/
+echo -e "\n[INSTALACION KUBERNETES | PASO 7]: Install kubelet, kubeadm and kubectl, and pin their version\n"
+apt-get update
+apt-get install -y kubelet kubeadm kubectl
+apt-mark hold kubelet kubeadm kubectl
+# After this the kubelet would be restarting every few seconds, as it waits in a crashloop for kubeadm to tell it what to do
 
-
-echo "[INSTALACION KUBERNETES | PASO 9]: Configurar el servicio de Linux para cri-dockerd, es decir, las unidades systemd para cri-dockerd"
-wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.service
-wget https://raw.githubusercontent.com/Mirantis/cri-dockerd/master/packaging/systemd/cri-docker.socket
-mv cri-docker.socket cri-docker.service /etc/systemd/system/
-sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
-
-
-echo "[INSTALACION KUBERNETES | PASO 10]: Iniciar y habilitar los servicios cri-docker.service y cri-docker.socket"
-systemctl daemon-reload
-systemctl enable cri-docker.service
-systemctl enable --now cri-docker.socket
-systemctl status cri-docker.socket
+echo -e "\n[INSTALACION KUBERNETES | PASO 8]: Comment the line 'disabled_plugins' in 'config.toml'\n"
+sed -i 's/^disabled_plugins.*/#disabled_plugins = ["cri"]/g' /etc/containerd/config.toml
+systemctl restart containerd
